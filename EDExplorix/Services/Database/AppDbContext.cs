@@ -10,8 +10,15 @@ public class AppDbContext : DbContext
     public DbSet<StarSystem> StarSystems { get; set; }
     public DbSet<Body> Bodies { get; set; }
     
+    public AppDbContext() { }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (optionsBuilder.IsConfigured)
+            return;
+
         var dbPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "EDExplorix",

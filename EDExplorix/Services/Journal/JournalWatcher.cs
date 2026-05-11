@@ -83,4 +83,10 @@ public class JournalWatcher : IDisposable
         _eventSubject.OnCompleted();
         _eventSubject.Dispose();
     }
+    
+    //tests
+    public void SimulateEvent(JournalEvent journalEvent)
+    {
+        _eventSubject.OnNext(journalEvent);
+    }
 }
