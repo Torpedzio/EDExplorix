@@ -24,8 +24,9 @@ public class Body
     public bool WasDiscovered { get; set; }
     public bool WasMapped { get; set; }
     public DateTime ScannedAt { get; set; }
-
     public StarSystem StarSystem { get; set; } = null!;
+    public int BiologicalSignals { get; set; }
+    public int GeologicalSignals { get; set; }
 
     public bool IsStar => StarType != null;
     public bool IsPlanet => PlanetClass != null;

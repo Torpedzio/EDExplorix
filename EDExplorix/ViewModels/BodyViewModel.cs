@@ -8,7 +8,7 @@ public partial class BodyViewModel : ObservableObject
 {
     [ObservableProperty]
     private bool _showDetails;
-
+    public int BodyId { get; }
     public string Name { get; }
     public string PlanetClass { get; }
     public float? MassEM { get; }
@@ -23,16 +23,25 @@ public partial class BodyViewModel : ObservableObject
     public bool WasDiscovered { get; }
     public bool WasMapped { get; }
     public bool IsValuable { get; }
-    
     public long EstimatedValue { get; }
+    public bool IsStar { get; }
+    
+    [ObservableProperty]
+    private int _biologicalSignals;
+
+    [ObservableProperty]
+    private int _geologicalSignals;
+    
     public string ValueDisplay => EstimatedValue > 0 ? $"{EstimatedValue:N0} CR" : "N/A";
     public string AtmosphereDisplay => string.IsNullOrEmpty(AtmosphereType) ? "None" : AtmosphereType;
     public string VolcanismDisplay => string.IsNullOrEmpty(Volcanism) ? "None" : Volcanism;
     public string LandableDisplay => Landable.HasValue ? (Landable.Value ? "Yes" : "No") : "N/A";
     public string OrbitalPeriodDisplay => OrbitalPeriod.HasValue ? $"{OrbitalPeriod.Value / 86400f:F1} days" : "N/A";
     public string EccentricityDisplay => Eccentricity.HasValue ? $"{Eccentricity.Value:F3}" : "N/A";
-
-    public string RowBackground => IsValuable ? "#1a2a0a" : "#0d1117";
+    public string BioDisplay => BiologicalSignals > 0 ? $"Bio: {BiologicalSignals}" : "Bio: None";
+    public string GeoDisplay => GeologicalSignals > 0 ? $"Geo: {GeologicalSignals}" : "Geo: None";
+    public string RowBackground => IsStar ? "#1a1a0a" :
+        IsValuable ? "#1a2a0a" : "#0d1117";
 
     public string GravityDisplay => SurfaceGravity.HasValue
         ? $"{SurfaceGravity.Value / 9.81f:F2}g"
@@ -50,8 +59,15 @@ public partial class BodyViewModel : ObservableObject
         ? "No"
         : TerraformState;
 
+    public void UpdateSignals(int bio, int geo)
+    {
+        BiologicalSignals = bio;
+        GeologicalSignals = geo;
+    }
+    
     public BodyViewModel(Body body)
     {
+        BodyId = body.BodyId;
         Name = body.Name;
         PlanetClass = body.PlanetClass ?? "Unknown";
         MassEM = body.MassEM;

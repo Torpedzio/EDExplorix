@@ -12,6 +12,7 @@ public partial class StarSystemViewModel : ObservableObject
     private bool _isExpanded;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(BodyCountDisplay))]
     private int _bodyCount;
 
     public long SystemAddress { get; }
@@ -19,7 +20,9 @@ public partial class StarSystemViewModel : ObservableObject
     public DateTime FirstVisited { get; }
     public ObservableCollection<BodyViewModel> Bodies { get; } = [];
     
-    public string BodyCountDisplay => BodyCount > 0 ? $"{Bodies.Count}/{BodyCount} bodies" : $"{Bodies.Count} bodies";
+    public string BodyCountDisplay => BodyCount > 0 
+        ? $"{Bodies.Count}/{BodyCount} bodies" 
+        : $"{Bodies.Count} bodies";
     public string ExpandIcon => IsExpanded ? "▲" : "▼";
     
     [RelayCommand]
@@ -35,6 +38,7 @@ public partial class StarSystemViewModel : ObservableObject
 
     public void AddBody(Body body)
     {
-        Bodies.Add(new BodyViewModel(body));
+        Bodies.Insert(0, new BodyViewModel(body));
+        OnPropertyChanged(nameof(BodyCountDisplay));
     }
 }

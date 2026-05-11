@@ -33,6 +33,9 @@ public class ExplorationService : IDisposable
             case ScanEvent scan:
                 HandleScan(scan);
                 break;
+            case FSSBodySignalsEvent signals:
+                HandleBodySignals(signals);
+                break;
         }
     }
 
@@ -69,9 +72,6 @@ public class ExplorationService : IDisposable
 
     private void HandleScan(ScanEvent scan)
     {
-        if (scan.IsStar)
-            return;
-
         var system = _db.StarSystems.Find(scan.SystemAddress);
         if (system == null)
             return;
@@ -105,6 +105,22 @@ public class ExplorationService : IDisposable
         };
 
         _db.Bodies.Add(body);
+        _db.SaveChanges();
+    }
+    
+    private void HandleBodySignals(FSSBodySignalsEvent signals)
+    {
+        var body = _db.Bodies
+            .FirstOrDefault(b => b.SystemAddress == signals.SystemAddress
+                                 && b.BodyId == signals.BodyId);
+        if (body == null)
+            return;
+
+        body.BiologicalSignals = signals.Signals
+            .FirstOrDefault(s => s.TypeDisplay == "Biological")?.Count ?? 0;
+        body.GeologicalSignals = signals.Signals
+            .FirstOrDefault(s => s.TypeDisplay == "Geological")?.Count ?? 0;
+
         _db.SaveChanges();
     }
 

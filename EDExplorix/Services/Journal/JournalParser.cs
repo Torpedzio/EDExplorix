@@ -26,6 +26,7 @@ public class JournalParser
                 "FSDJump" => JsonSerializer.Deserialize<FSDJumpEvent>(line, Options),
                 "FSSDiscoveryScan" => JsonSerializer.Deserialize<FSSDiscoveryScanEvent>(line, Options),
                 "Scan" => JsonSerializer.Deserialize<ScanEvent>(line, Options),
+                "FSSBodySignals" => JsonSerializer.Deserialize<FSSBodySignalsEvent>(line, Options),
                 _ => null
             };
         }

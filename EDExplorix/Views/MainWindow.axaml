@@ -71,7 +71,7 @@
                                                 <StackPanel>
 
                                                     <!-- Główny wiersz -->
-                                                    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto">
+                                                    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{Binding Name}"
                                                                    Foreground="#e0e0e0"
@@ -101,13 +101,13 @@
                                                                    FontSize="12"
                                                                    Margin="8,0"
                                                                    VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Column="4"
+                                                        <TextBlock Grid.Column="5"
                                                                    Text="{Binding ValueDisplay}"
                                                                    Foreground="#f0c040"
                                                                    FontSize="12"
                                                                    Margin="8,0"
                                                                    VerticalAlignment="Center"/>
-                                                        <Button Grid.Column="5"
+                                                        <Button Grid.Column="6"
                                                                 Content="Details"
                                                                 Command="{Binding ToggleDetailsCommand}"
                                                                 FontSize="11"
@@ -122,7 +122,7 @@
                                                             Padding="8"
                                                             Background="#0d0d1e"
                                                             CornerRadius="4">
-                                                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                                                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
                                                             <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
                                                                 <TextBlock Text="Atmosphere" Foreground="#666" FontSize="11"/>
                                                                 <TextBlock Text="{Binding AtmosphereDisplay}" Foreground="#ccc" FontSize="12"/>
@@ -146,6 +146,14 @@
                                                             <StackPanel Grid.Column="2" Grid.Row="1" Margin="0,8,0,0" Spacing="4">
                                                                 <TextBlock Text="Eccentricity" Foreground="#666" FontSize="11"/>
                                                                 <TextBlock Text="{Binding EccentricityDisplay}" Foreground="#ccc" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="0" Grid.Row="2" Margin="0,8,0,0" Spacing="4">
+                                                                <TextBlock Text="Biological" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding BioDisplay}" Foreground="#40c040" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="1" Grid.Row="2" Margin="0,8,0,0" Spacing="4">
+                                                                <TextBlock Text="Geological" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding GeoDisplay}" Foreground="#c08040" FontSize="12"/>
                                                             </StackPanel>
                                                         </Grid>
                                                     </Border>
