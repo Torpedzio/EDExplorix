@@ -54,6 +54,9 @@ public partial class MainWindowViewModel : ObservableObject
             case FSSDiscoveryScanEvent fss:
                 HandleFSSDiscoveryScan(fss);
                 break;
+            case SAAScanCompleteEvent saa:
+                HandleSAAScanComplete(saa);
+                break;
         }
     }
 
@@ -116,10 +119,11 @@ public partial class MainWindowViewModel : ObservableObject
 
             if (_pendingSignals.TryGetValue((scan.SystemAddress, scan.BodyId), out var signals))
             {
-                var bodyVm = systemVm.Bodies.LastOrDefault();
+                var bodyVm = systemVm.Bodies.FirstOrDefault(b => b.BodyId == scan.BodyId);
                 if (bodyVm != null)
+                {
                     bodyVm.UpdateSignals(signals.Bio, signals.Geo);
-
+                }
                 _pendingSignals.Remove((scan.SystemAddress, scan.BodyId));
             }
         });
@@ -132,6 +136,7 @@ public partial class MainWindowViewModel : ObservableObject
         var geo = signals.Signals
             .FirstOrDefault(s => s.TypeDisplay == "Geological")?.Count ?? 0;
 
+        Console.WriteLine($"BodySignals: {signals.BodyId} bio={bio} geo={geo}");
         _pendingSignals[(signals.SystemAddress, signals.BodyId)] = (bio, geo);
         ApplySignals(signals.SystemAddress, signals.BodyId, bio, geo);
     }
@@ -155,6 +160,16 @@ public partial class MainWindowViewModel : ObservableObject
 
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             systemVm.BodyCount = fss.BodyCount);
+    }
+    
+    private void HandleSAAScanComplete(SAAScanCompleteEvent saa)
+    {
+        var systemVm = Systems.FirstOrDefault(s => s.SystemAddress == saa.SystemAddress);
+        var bodyVm = systemVm?.Bodies.FirstOrDefault(b => b.BodyId == saa.BodyId);
+        if (bodyVm == null)
+            return;
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => bodyVm.SetMapped());
     }
     
     

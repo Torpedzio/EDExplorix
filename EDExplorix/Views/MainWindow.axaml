@@ -71,7 +71,7 @@
                                                 <StackPanel>
 
                                                     <!-- Główny wiersz -->
-                                                    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                                                    <Grid ColumnDefinitions="*,200,60,60,80,120,80">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{Binding Name}"
                                                                    Foreground="#e0e0e0"
@@ -122,7 +122,7 @@
                                                             Padding="8"
                                                             Background="#0d0d1e"
                                                             CornerRadius="4">
-                                                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
+                                                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto">
                                                             <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
                                                                 <TextBlock Text="Atmosphere" Foreground="#666" FontSize="11"/>
                                                                 <TextBlock Text="{Binding AtmosphereDisplay}" Foreground="#ccc" FontSize="12"/>
@@ -154,6 +154,14 @@
                                                             <StackPanel Grid.Column="1" Grid.Row="2" Margin="0,8,0,0" Spacing="4">
                                                                 <TextBlock Text="Geological" Foreground="#666" FontSize="11"/>
                                                                 <TextBlock Text="{Binding GeoDisplay}" Foreground="#c08040" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="0" Grid.Row="3" Margin="0,8,0,0" Spacing="4">
+                                                                <TextBlock Text="Discovered" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding DiscoveredDisplay}" Foreground="#ccc" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="1" Grid.Row="3" Margin="0,8,0,0" Spacing="4">
+                                                                <TextBlock Text="Mapped" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding MappedDisplay}" Foreground="#ccc" FontSize="12"/>
                                                             </StackPanel>
                                                         </Grid>
                                                     </Border>

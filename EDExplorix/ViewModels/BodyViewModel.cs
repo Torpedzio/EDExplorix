@@ -21,10 +21,12 @@ public partial class BodyViewModel : ObservableObject
     public float? OrbitalPeriod { get; }
     public float? Eccentricity { get; }
     public bool WasDiscovered { get; }
-    public bool WasMapped { get; }
     public bool IsValuable { get; }
     public long EstimatedValue { get; }
     public bool IsStar { get; }
+    
+    [ObservableProperty]
+    private bool _wasMapped;
     
     [ObservableProperty]
     private int _biologicalSignals;
@@ -40,6 +42,8 @@ public partial class BodyViewModel : ObservableObject
     public string EccentricityDisplay => Eccentricity.HasValue ? $"{Eccentricity.Value:F3}" : "N/A";
     public string BioDisplay => BiologicalSignals > 0 ? $"Bio: {BiologicalSignals}" : "Bio: None";
     public string GeoDisplay => GeologicalSignals > 0 ? $"Geo: {GeologicalSignals}" : "Geo: None";
+    public string DiscoveredDisplay => WasDiscovered ? "Yes" : "First discovery! 🌟";
+    public string MappedDisplay => WasMapped ? "Yes" : "No";
     public string RowBackground => IsStar ? "#1a1a0a" :
         IsValuable ? "#1a2a0a" : "#0d1117";
 
@@ -63,6 +67,14 @@ public partial class BodyViewModel : ObservableObject
     {
         BiologicalSignals = bio;
         GeologicalSignals = geo;
+        OnPropertyChanged(nameof(BioDisplay));
+        OnPropertyChanged(nameof(GeoDisplay));
+    }
+    
+    public void SetMapped()
+    {
+        WasMapped = true;
+        OnPropertyChanged(nameof(MappedDisplay));
     }
     
     public BodyViewModel(Body body)
