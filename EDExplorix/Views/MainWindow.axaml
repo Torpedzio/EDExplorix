@@ -1,20 +1,168 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:EDExplorix.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="EDExplorix.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="EDExplorix">
+        Title="EDExplorix"
+        Width="900" Height="700"
+        MinWidth="600" MinHeight="400">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid RowDefinitions="Auto,*">
 
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#1a1a2e" Padding="16,12">
+            <TextBlock Text="EDExplorix"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="#e0a020"/>
+        </Border>
+
+        <!-- Lista systemów -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Systems}" Margin="8">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:StarSystemViewModel">
+
+                        <!-- Kafelek systemu -->
+                        <Border Margin="0,4" Background="#16213e"
+                                CornerRadius="6" ClipToBounds="True">
+                            <StackPanel>
+
+                                <!-- Nagłówek systemu -->
+                                <Button Background="Transparent"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch"
+                                        Command="{Binding ToggleExpandedCommand}"
+                                        Padding="12,10">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding Name}"
+                                                   FontSize="15"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#e0e0e0"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding BodyCountDisplay}"
+                                                   Foreground="#888"
+                                                   FontSize="12"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"/>
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding ExpandIcon}"
+                                                   Foreground="#888"
+                                                   FontSize="12"
+                                                   VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- Lista ciał (rozwijana) -->
+                                <ItemsControl ItemsSource="{Binding Bodies}"
+                                              IsVisible="{Binding IsExpanded}"
+                                              Margin="0,0,0,8">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:BodyViewModel">
+                                            <Border Margin="8,2"
+                                                    CornerRadius="4"
+                                                    Padding="10,8"
+                                                    Background="{Binding RowBackground}">
+                                                <StackPanel>
+
+                                                    <!-- Główny wiersz -->
+                                                    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto">
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{Binding Name}"
+                                                                   Foreground="#e0e0e0"
+                                                                   FontWeight="Medium"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding PlanetClass}"
+                                                                   Foreground="#aaa"
+                                                                   FontSize="12"
+                                                                   Margin="8,0"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{Binding TemperatureDisplay}"
+                                                                   Foreground="#aaa"
+                                                                   FontSize="12"
+                                                                   Margin="8,0"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="3"
+                                                                   Text="{Binding GravityDisplay}"
+                                                                   Foreground="#aaa"
+                                                                   FontSize="12"
+                                                                   Margin="8,0"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="4"
+                                                                   Text="{Binding MassDisplay}"
+                                                                   Foreground="#aaa"
+                                                                   FontSize="12"
+                                                                   Margin="8,0"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="4"
+                                                                   Text="{Binding ValueDisplay}"
+                                                                   Foreground="#f0c040"
+                                                                   FontSize="12"
+                                                                   Margin="8,0"
+                                                                   VerticalAlignment="Center"/>
+                                                        <Button Grid.Column="5"
+                                                                Content="Details"
+                                                                Command="{Binding ToggleDetailsCommand}"
+                                                                FontSize="11"
+                                                                Padding="6,3"
+                                                                Background="#2a2a4a"
+                                                                Foreground="#aaa"/>
+                                                    </Grid>
+
+                                                    <!-- Panel szczegółów -->
+                                                    <Border IsVisible="{Binding ShowDetails}"
+                                                            Margin="0,6,0,0"
+                                                            Padding="8"
+                                                            Background="#0d0d1e"
+                                                            CornerRadius="4">
+                                                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                                                            <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
+                                                                <TextBlock Text="Atmosphere" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding AtmosphereDisplay}" Foreground="#ccc" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
+                                                                <TextBlock Text="Volcanism" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding VolcanismDisplay}" Foreground="#ccc" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4">
+                                                                <TextBlock Text="Terraform" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding TerraformDisplay}" Foreground="#ccc" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,8,0,0" Spacing="4">
+                                                                <TextBlock Text="Landable" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding LandableDisplay}" Foreground="#ccc" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,8,0,0" Spacing="4">
+                                                                <TextBlock Text="Orbital Period" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding OrbitalPeriodDisplay}" Foreground="#ccc" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2" Grid.Row="1" Margin="0,8,0,0" Spacing="4">
+                                                                <TextBlock Text="Eccentricity" Foreground="#666" FontSize="11"/>
+                                                                <TextBlock Text="{Binding EccentricityDisplay}" Foreground="#ccc" FontSize="12"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Border>
+
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </Border>
+
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+    </Grid>
 </Window>

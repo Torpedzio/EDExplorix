@@ -34,4 +34,52 @@ public class Body
     public bool IsAmmoniaWorld => PlanetClass == "Ammonia world";
     public bool IsTerraformable => TerraformState is "Terraformable" or "Terraforming" or "Terraformed";
     public bool IsValuable => IsEarthLike || IsWaterWorld || IsAmmoniaWorld || IsTerraformable;
+    
+    public long EstimatedValue => CalculateValue();
+
+    private long CalculateValue()
+    {
+        if (!IsPlanet) return 0;
+
+        // Base Value
+        double baseValue = PlanetClass switch
+        {
+            "Earthlike body" => 300000,
+            "Water world" => 180000,
+            "Ammonia world" => 180000,
+            "Metal rich body" => 21790,
+            "High metal content body" => 9654,
+            "Rocky body" => 1000,
+            "Icy body" => 1000,
+            "Rocky ice body" => 1000,
+            "Sudarsky class I gas giant" => 3974,
+            "Sudarsky class II gas giant" => 9654,
+            "Sudarsky class III gas giant" => 1102,
+            "Sudarsky class IV gas giant" => 2101,
+            "Sudarsky class V gas giant" => 2101,
+            "Gas giant with water based life" => 9654,
+            "Gas giant with ammonia based life" => 9654,
+            "Helium rich gas giant" => 1102,
+            "Helium gas giant" => 1102,
+            _ => 1000
+        };
+
+        // Mass
+        double mass = MassEM ?? 1.0;
+        double scaledValue = baseValue * Math.Pow(mass, 0.56);
+
+        // Terraform bonus
+        if (IsTerraformable)
+            scaledValue += 93328 * Math.Pow(mass, 0.56);
+
+        // First Discover
+        if (!WasDiscovered)
+            scaledValue *= 2.6;
+
+        // First Map
+        if (!WasMapped)
+            scaledValue *= 3.3;
+
+        return (long)scaledValue;
+    }
 }

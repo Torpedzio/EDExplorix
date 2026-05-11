@@ -1,6 +1,175 @@
-﻿namespace EDExplorix.ViewModels;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using EDExplorix.Models.Journal;
+using EDExplorix.Services;
+using EDExplorix.Services.Database;
+using EDExplorix.Services.Journal;
 
-public partial class MainWindowViewModel : ViewModelBase
+namespace EDExplorix.ViewModels;
+
+public partial class MainWindowViewModel : ObservableObject
 {
-    public string Greeting { get; } = "Welcome to Avalonia!";
+    private readonly ExplorationService _explorationService;
+    private readonly JournalWatcher _watcher;
+
+    public ObservableCollection<StarSystemViewModel> Systems { get; } = [];
+
+    private readonly ConfigurationService _config = new();
+
+    public MainWindowViewModel()
+    {
+        var db = new AppDbContext();
+        _watcher = new JournalWatcher();
+        _explorationService = new ExplorationService(db, _watcher);
+
+        _watcher.Events.Subscribe(OnJournalEvent);
+
+        if (_config.IsConfigured)
+            _watcher.Start(_config.Config.JournalPath!);
+        
+        //Tymczasowe - tylko do testów UI
+        //Task.Delay(500).ContinueWith(_ => SimulateData());
+    }
+
+    private void OnJournalEvent(JournalEvent journalEvent)
+    {
+        switch (journalEvent)
+        {
+            case FSDJumpEvent jump:
+                HandleFSDJump(jump);
+                break;
+            case ScanEvent scan when scan.IsPlanet:
+                HandleScan(scan);
+                break;
+        }
+    }
+
+    private void HandleFSDJump(FSDJumpEvent jump)
+    {
+        foreach (var s in Systems)
+            s.IsExpanded = false;
+
+        var existing = Systems.FirstOrDefault(s => s.SystemAddress == jump.SystemAddress);
+        if (existing != null)
+        {
+            existing.IsExpanded = true;
+            return;
+        }
+
+        var vm = new StarSystemViewModel(new Models.Database.StarSystem
+        {
+            SystemAddress = jump.SystemAddress,
+            Name = jump.StarSystem,
+            X = jump.StarPos?.Length > 0 ? jump.StarPos[0] : 0,
+            Y = jump.StarPos?.Length > 1 ? jump.StarPos[1] : 0,
+            Z = jump.StarPos?.Length > 2 ? jump.StarPos[2] : 0,
+            FirstVisited = jump.Timestamp
+        }) { IsExpanded = true };
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => Systems.Insert(0, vm));
+    }
+
+    private void HandleScan(ScanEvent scan)
+    {
+        var systemVm = Systems.FirstOrDefault(s => s.SystemAddress == scan.SystemAddress);
+        if (systemVm == null)
+            return;
+
+        var body = new Models.Database.Body
+        {
+            BodyId = scan.BodyId,
+            SystemAddress = scan.SystemAddress,
+            Name = scan.BodyName,
+            PlanetClass = scan.PlanetClass,
+            MassEM = scan.MassEM,
+            Radius = scan.Radius,
+            SurfaceGravity = scan.SurfaceGravity,
+            SurfaceTemperature = scan.SurfaceTemperature,
+            SurfacePressure = scan.SurfacePressure,
+            Landable = scan.Landable,
+            TerraformState = scan.TerraformState,
+            AtmosphereType = scan.AtmosphereType,
+            Volcanism = scan.Volcanism,
+            OrbitalPeriod = scan.OrbitalPeriod,
+            Eccentricity = scan.Eccentricity,
+            WasDiscovered = scan.WasDiscovered,
+            WasMapped = scan.WasMapped,
+            ScannedAt = scan.Timestamp
+        };
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => systemVm.AddBody(body));
+    }
+    
+    
+    
+    // Tymczasowe - tylko do testów UI
+    public void SimulateData()
+    {
+        HandleFSDJump(new FSDJumpEvent
+        {
+            StarSystem = "Shinrarta Dezhra",
+            SystemAddress = 111111,
+            StarPos = [55.71875f, 17.59375f, 27.15625f],
+            Timestamp = DateTime.UtcNow
+        });
+        
+        var systemVm = Systems.FirstOrDefault(s => s.SystemAddress == 111111);
+        if (systemVm != null)
+            systemVm.BodyCount = 3;
+
+        HandleScan(new ScanEvent
+        {
+            BodyName = "Shinrarta Dezhra 1",
+            BodyId = 1,
+            SystemAddress = 111111,
+            PlanetClass = "Earthlike body",
+            MassEM = 0.95f,
+            SurfaceGravity = 9.5f,
+            SurfaceTemperature = 290f,
+            Landable = false,
+            TerraformState = "",
+            AtmosphereType = "Nitrogen",
+            WasDiscovered = false,
+            WasMapped = false,
+            Timestamp = DateTime.UtcNow
+        });
+
+        HandleScan(new ScanEvent
+        {
+            BodyName = "Shinrarta Dezhra 2",
+            BodyId = 2,
+            SystemAddress = 111111,
+            PlanetClass = "Water world",
+            MassEM = 1.2f,
+            SurfaceGravity = 11.2f,
+            SurfaceTemperature = 310f,
+            Landable = false,
+            TerraformState = "Terraformable",
+            AtmosphereType = "Water",
+            WasDiscovered = true,
+            WasMapped = false,
+            Timestamp = DateTime.UtcNow
+        });
+
+        HandleScan(new ScanEvent
+        {
+            BodyName = "Shinrarta Dezhra 3",
+            BodyId = 3,
+            SystemAddress = 111111,
+            PlanetClass = "Rocky body",
+            MassEM = 0.1f,
+            SurfaceGravity = 2.1f,
+            SurfaceTemperature = 180f,
+            Landable = true,
+            TerraformState = "",
+            AtmosphereType = "",
+            WasDiscovered = false,
+            WasMapped = false,
+            Timestamp = DateTime.UtcNow
+        });
+    }
 }
