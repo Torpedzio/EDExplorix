@@ -29,6 +29,8 @@ public partial class MainWindowViewModel : ObservableObject
 
     public MainWindowViewModel()
     {
+        Console.WriteLine($"Journal path: {_config.Config.JournalPath}");
+        Console.WriteLine($"IsConfigured: {_config.IsConfigured}");
         var db = new AppDbContext();
         _watcher = new JournalWatcher();
         _explorationService = new ExplorationService(db, _watcher);
@@ -44,12 +46,14 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void OnJournalEvent(JournalEvent journalEvent)
     {
+        Console.WriteLine($"OnJournalEvent: {journalEvent.Event}");
         switch (journalEvent)
         {
             case FSDJumpEvent jump:
                 HandleFSDJump(jump);
                 break;
             case ScanEvent scan:
+                Console.WriteLine($"Scan: {scan.BodyName} IsPlanet={scan.IsPlanet} IsStar={scan.IsStar}");
                 HandleScan(scan);
                 break;
             case FSSBodySignalsEvent signals:
@@ -66,6 +70,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void HandleFSDJump(FSDJumpEvent jump)
     {
+        Console.WriteLine($"HandleFSDJump: {jump.StarSystem} {jump.SystemAddress}");
         foreach (var s in Systems)
             s.IsExpanded = false;
 
@@ -92,6 +97,7 @@ public partial class MainWindowViewModel : ObservableObject
     private void HandleScan(ScanEvent scan)
     {
         var systemVm = Systems.FirstOrDefault(s => s.SystemAddress == scan.SystemAddress);
+        Console.WriteLine($"HandleScan: {scan.BodyName}, systemVm={systemVm != null}, Systems.Count={Systems.Count}");
         if (systemVm == null)
             return;
 

@@ -42,7 +42,7 @@ public partial class StarSystemViewModel : ObservableObject
 
     public void AddBody(Body body)
     {
-        Bodies.Insert(0, new BodyViewModel(body));
+        _allBodies.Add(new BodyViewModel(body));
         ApplySort();
         OnPropertyChanged(nameof(BodyCountDisplay));
     }

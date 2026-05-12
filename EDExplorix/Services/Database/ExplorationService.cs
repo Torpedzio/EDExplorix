@@ -16,7 +16,6 @@ public class ExplorationService : IDisposable
     {
         _db = db;
         _watcher = watcher;
-
         _subscription = _watcher.Events.Subscribe(OnJournalEvent);
     }
 
@@ -72,6 +71,9 @@ public class ExplorationService : IDisposable
 
     private void HandleScan(ScanEvent scan)
     {
+        if (scan.IsStar)
+            return;
+
         var system = _db.StarSystems.Find(scan.SystemAddress);
         if (system == null)
             return;
@@ -87,6 +89,7 @@ public class ExplorationService : IDisposable
             BodyId = scan.BodyId,
             SystemAddress = scan.SystemAddress,
             Name = scan.BodyName,
+            StarType = scan.StarType,
             PlanetClass = scan.PlanetClass,
             MassEM = scan.MassEM,
             Radius = scan.Radius,
@@ -107,12 +110,12 @@ public class ExplorationService : IDisposable
         _db.Bodies.Add(body);
         _db.SaveChanges();
     }
-    
+
     private void HandleBodySignals(FSSBodySignalsEvent signals)
     {
         var body = _db.Bodies
             .FirstOrDefault(b => b.SystemAddress == signals.SystemAddress
-                                 && b.BodyId == signals.BodyId);
+                              && b.BodyId == signals.BodyId);
         if (body == null)
             return;
 

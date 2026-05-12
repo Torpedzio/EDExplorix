@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using EDExplorix.Models.Journal;
 
 namespace EDExplorix.Services.Journal;
@@ -13,6 +14,8 @@ public class JournalWatcher : IDisposable
     private FileSystemWatcher? _watcher;
     private string? _currentFile;
     private long _lastPosition;
+    private Timer? _pollingTimer;
+    private long _lastFileSize;
 
     public IObservable<JournalEvent> Events => _eventSubject;
 
@@ -24,7 +27,10 @@ public class JournalWatcher : IDisposable
             .FirstOrDefault();
 
         if (_currentFile != null)
+        {
             ReadToEnd(_currentFile);
+            _lastFileSize = new FileInfo(_currentFile).Length;
+        }
 
         _watcher = new FileSystemWatcher(journalFolder)
         {
@@ -33,8 +39,22 @@ public class JournalWatcher : IDisposable
             EnableRaisingEvents = true
         };
 
-        _watcher.Changed += OnFileChanged;
-        _watcher.Created += OnFileCreated;
+        //_watcher.Changed += OnFileChanged;
+        //_watcher.Created += OnFileCreated;
+        
+        _pollingTimer = new Timer(PollFile, null, 2000, 2000);
+    }
+    
+    private void PollFile(object? state)
+    {
+        if (_currentFile == null) return;
+
+        var size = new FileInfo(_currentFile).Length;
+        if (size > _lastFileSize)
+        {
+            _lastFileSize = size;
+            ReadNewLines(_currentFile);
+        }
     }
 
     private void OnFileCreated(object sender, FileSystemEventArgs e)
@@ -45,6 +65,7 @@ public class JournalWatcher : IDisposable
 
     private void OnFileChanged(object sender, FileSystemEventArgs e)
     {
+        Console.WriteLine($"File changed: {e.FullPath}, current: {_currentFile}");
         if (e.FullPath != _currentFile)
             return;
 
@@ -69,9 +90,13 @@ public class JournalWatcher : IDisposable
 
         while ((line = reader.ReadLine()) != null)
         {
+            Console.WriteLine($"New line: {line[..Math.Min(80, line.Length)]}");
             var journalEvent = _parser.ParseLine(line);
             if (journalEvent != null)
+            {
+                Console.WriteLine($"Publishing event: {journalEvent.Event}");
                 _eventSubject.OnNext(journalEvent);
+            }
         }
 
         _lastPosition = stream.Position;
@@ -79,6 +104,7 @@ public class JournalWatcher : IDisposable
 
     public void Dispose()
     {
+        _pollingTimer?.Dispose();
         _watcher?.Dispose();
         _eventSubject.OnCompleted();
         _eventSubject.Dispose();
