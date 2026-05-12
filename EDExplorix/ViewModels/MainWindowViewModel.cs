@@ -5,11 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using EDExplorix.Models;
 using EDExplorix.Models.Journal;
 using EDExplorix.Services;
 using EDExplorix.Services.Database;
 using EDExplorix.Services.Journal;
+using EDExplorix.Views;
 
 namespace EDExplorix.ViewModels;
 
@@ -184,8 +186,22 @@ public partial class MainWindowViewModel : ObservableObject
                 system.ApplySort(value);
         }
     }
-
     public List<SortOption> SortOptions => Enum.GetValues<SortOption>().ToList();
+    
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        var vm = new SettingsViewModel(_config);
+        var window = new SettingsWindow(vm);
+        vm.Saved += () =>
+        {
+            if (_config.IsConfigured)
+                _watcher.Start(_config.Config.JournalPath!);
+        };
+        window.ShowDialog(App.Current?.ApplicationLifetime is
+            Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow : null);
+    }
     
     
     // Tymczasowe - tylko do testów UI
