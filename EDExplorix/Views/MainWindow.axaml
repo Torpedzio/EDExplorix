@@ -4,7 +4,7 @@
         x:Class="EDExplorix.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="EDExplorix"
-        Width="900" Height="700"
+        Width="1200" Height="700"
         MinWidth="600" MinHeight="400">
 
     <Design.DataContext>
@@ -15,10 +15,22 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Background="#1a1a2e" Padding="16,12">
-            <TextBlock Text="EDExplorix"
-                       FontSize="20"
-                       FontWeight="Bold"
-                       Foreground="#e0a020"/>
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0"
+                           Text="EDExplorix"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="#e0a020"/>
+                <TextBlock Grid.Column="1"
+                           Text="Sort by:"
+                           Foreground="#888"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <ComboBox Grid.Column="2"
+                          ItemsSource="{Binding SortOptions}"
+                          SelectedItem="{Binding SelectedSort}"
+                          MinWidth="160"/>
+            </Grid>
         </Border>
 
         <!-- Lista systemów -->

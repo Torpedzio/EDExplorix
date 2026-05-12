@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using EDExplorix.Models;
 using EDExplorix.Models.Journal;
 using EDExplorix.Services;
 using EDExplorix.Services.Database;
@@ -22,6 +23,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly ConfigurationService _config = new();
     
     private readonly Dictionary<(long SystemAddress, int BodyId), (int Bio, int Geo)> _pendingSignals = new();
+    private SortOption _selectedSort = SortOption.ScanOrder;
 
     public MainWindowViewModel()
     {
@@ -136,7 +138,6 @@ public partial class MainWindowViewModel : ObservableObject
         var geo = signals.Signals
             .FirstOrDefault(s => s.TypeDisplay == "Geological")?.Count ?? 0;
 
-        Console.WriteLine($"BodySignals: {signals.BodyId} bio={bio} geo={geo}");
         _pendingSignals[(signals.SystemAddress, signals.BodyId)] = (bio, geo);
         ApplySignals(signals.SystemAddress, signals.BodyId, bio, geo);
     }
@@ -172,6 +173,19 @@ public partial class MainWindowViewModel : ObservableObject
         Avalonia.Threading.Dispatcher.UIThread.Post(() => bodyVm.SetMapped());
     }
     
+    public SortOption SelectedSort
+    {
+        get => _selectedSort;
+        set
+        {
+            _selectedSort = value;
+            OnPropertyChanged(nameof(SelectedSort));
+            foreach (var system in Systems)
+                system.ApplySort(value);
+        }
+    }
+
+    public List<SortOption> SortOptions => Enum.GetValues<SortOption>().ToList();
     
     
     // Tymczasowe - tylko do testów UI
